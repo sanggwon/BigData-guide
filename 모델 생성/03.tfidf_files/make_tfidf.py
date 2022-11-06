@@ -73,7 +73,7 @@ if __name__ == "__main__":
         dir2_list = os.listdir(target_path + '/' + dir)
         for dir2 in dir2_list:
             file_list = os.listdir(target_path + '/' + dir + '/' + dir2)
-            week = get_week_number(datetime.datetime(int(dir2[:4]), int(dir2[4:6]), int(dir2[6:])))
+            # week = get_week_number(datetime.datetime(int(dir2[:4]), int(dir2[4:6]), int(dir2[6:])))
             # if str(week[0]) + str(week[1]) not in week_list:
             #     week_list[str(week[0]) + str(week[1])] = {}
             for file in file_list:
