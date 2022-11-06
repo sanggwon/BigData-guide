@@ -55,9 +55,9 @@ def word_count(doc, word_count_dic):
         else:
             word_count_dic[word] = 1
 
-def get_week_number(sourceDate):
-    weekNumber = sourceDate.isocalendar()
-    return weekNumber
+# def get_week_number(sourceDate):
+#     weekNumber = sourceDate.isocalendar()
+#     return weekNumber
 
 if __name__ == "__main__":
     if not os.path.exists(save_path):
