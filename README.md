@@ -11,3 +11,4 @@
 [04.토큰화](https://github.com/sanggwon/BigData-guide/blob/main/04.토큰화.md)  
 [05.TF-IDF](https://github.com/sanggwon/BigData-guide/blob/main/05.TF-IDF.md)  
 [06.Keras](https://github.com/sanggwon/BigData-guide/blob/main/06.Keras.md)  
+[07.word2vec](https://github.com/sanggwon/BigData-guide/blob/main/07.word2vec.md)  
