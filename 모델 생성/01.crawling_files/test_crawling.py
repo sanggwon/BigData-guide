@@ -144,7 +144,7 @@ def get_link(url) :
     rxn_req = Request(url, headers={'User-Agent': ua.chrome})
     return urlopen(rxn_req)
 
-def get_page_url_list(url, date, class_name) :
+def get_page_url_list(url, date, class_name, ori_url) :
     link = []
     for i in range(1, 10):
         try :
@@ -153,13 +153,13 @@ def get_page_url_list(url, date, class_name) :
             soup = BeautifulSoup(webpage,"html.parser",from_encoding="utf-8-sig")
             addr_list = soup.select(class_name)
             for addr in addr_list:
-                link.append(addr.attrs['href'])
+                link.append(ori_url + addr.attrs['href'])
             webpage.close()
         except Exception as e: # work on python 3.x
             print(e)
             continue
     return link
-    
+
 def get_url_list(url, date, class_name) :
     link = []
     try :
@@ -175,8 +175,9 @@ def get_url_list(url, date, class_name) :
 
     return link
 
-def create_file(path, sub_theme, sub, date, links) : 
+def create_file(path, sub_theme, sub, start, links) : 
     # 폴더 만들기
+    date = start.strftime("%Y%m%d")
     sub_theme_file_path = path + "/" + sub
     try :
         if not os.path.exists(sub_theme_file_path):
@@ -250,29 +251,29 @@ def page_crawling(theme_name, idx):
                 url = ori_url + 'now?sid=' + sub_theme[sub]
                 date = start.strftime("%Y-%m-%d")
                 class_name = 'div.left_cont ul li div.tit_area a'
-                links = get_page_url_list(url, date, class_name)
-                create_file(theme_file_path, sub_theme, sub, date, links)
+                links = get_page_url_list(url, date, class_name, ori_url)
+                create_file(theme_file_path, sub_theme, sub, start, links)
         elif theme == 'sports' :
             for sub in sub_theme :
                 url = ori_url + sub_theme[sub] + '/news/index?isphoto=N'
                 date = start.strftime("%Y%m%d")
                 class_name = 'div.content ul li div.text a'
                 links = get_page_url_list(url, date, class_name)
-                create_file(theme_file_path, sub_theme, sub, date, links)
+                create_file(theme_file_path, sub_theme, sub, start, links)
         elif theme == 'game' :
             for sub in sub_theme :
                 url = url + 'esports/' + sub_theme[sub] + '/news/' + sub
                 date = start.strftime("%Y-%m-%d")
                 class_name = 'div.news_list_container__1L7tH ul li.news_card_item__2lh4o a'
                 links = get_url_list(url, date, class_name)
-                create_file(theme_file_path, sub_theme, sub, date, links)
+                create_file(theme_file_path, sub_theme, sub, start, links)
     else :
         for sub in sub_theme :
             url = 'https://news.naver.com/main/list.naver?mode=LS2D&mid=shm&sid1='+ theme + '&sid2=' + sub_theme[sub]
             date = start.strftime("%Y%m%d")
             class_name = 'div.content ul li dt:not(.photo) a'
-            links = get_page_url_list(url, date, class_name)
-            create_file(theme_file_path, sub_theme, sub, date, links)
+            links = get_page_url_list(url, date, class_name, '')
+            create_file(theme_file_path, sub_theme, sub, start, links)
         
     ymd = datetime.now() - relativedelta(days=idx+1)
     ymd = ymd.strftime("%Y%m%d")
