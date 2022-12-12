@@ -1,11 +1,10 @@
 import multiprocessing
 import os, csv
-from boilerpipe.extract import Extractor
 from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
 from urllib.request import Request
 from urllib.request import urlopen
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from tqdm import tqdm
 from functools import partial
@@ -14,8 +13,12 @@ from fake_useragent import UserAgent
 from newspaper import Article
 import time
 import logging
+import traceback
+import nltk
 
-logger = logging.getLogger('ftpuploader')
+nltk.download()
+
+logging.basicConfig(filename='./test.log', level=logging.ERROR)
 # 데이터 저장 경로
 file_path = os.getcwd() + '/datas/'
 
@@ -126,6 +129,7 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
                 try:
                     return f(*args, **kwargs)
                 except Exception as e:
+                    logging.error(traceback.format_exc())
                     msg = "%s, Retrying in %d seconds..." % (str(e), mdelay)
                     if logger:
                         logger.warning(msg)
@@ -156,8 +160,9 @@ def get_page_url_list(url, date, class_name, ori_url) :
                 link.append(ori_url + addr.attrs['href'])
             webpage.close()
         except Exception as e: # work on python 3.x
-            print(e)
+            logging.error(traceback.format_exc())
             continue
+
     return link
 
 def get_url_list(url, date, class_name) :
@@ -171,7 +176,7 @@ def get_url_list(url, date, class_name) :
             link.append(addr.attrs['href'])
         webpage.close()
     except Exception as e: # work on python 3.x
-        print(e)
+        logging.error(traceback.format_exc())
 
     return link
 
@@ -183,16 +188,14 @@ def create_file(path, sub_theme, sub, start, links) :
         if not os.path.exists(sub_theme_file_path):
             os.mkdir(sub_theme_file_path)
     except Exception as e: # work on python 3.x
-        print(e)
-        pass
+        logging.error(traceback.format_exc())
 
     ym_file_path = sub_theme_file_path + "/" + date[:-2]
     try :
         if not os.path.exists(ym_file_path):
             os.mkdir(ym_file_path)
     except Exception as e: # work on python 3.x
-        print(e)
-        pass
+        logging.error(traceback.format_exc())
 
     _date, _content, _keywords, _summary, _category, _url = ['날짜'], ['본문'], ['키워드'], ['요약'], ['카테고리'], ['URL']
 
@@ -238,12 +241,10 @@ def page_crawling(theme_name, idx):
         if not os.path.exists(theme_file_path):
             os.mkdir(theme_file_path)
     except Exception as e: # work on python 3.x
-        print(e)
-        pass
+        logging.error(traceback.format_exc())
 
     sub_theme = sub_theme_list[theme]
 
-    # 연예
     if theme.isalpha() :
         ori_url = 'https://' + theme + '.naver.com/'
         if theme == 'entertain' :
@@ -274,13 +275,6 @@ def page_crawling(theme_name, idx):
             class_name = 'div.content ul li dt:not(.photo) a'
             links = get_page_url_list(url, date, class_name, '')
             create_file(theme_file_path, sub_theme, sub, start, links)
-        
-    ymd = datetime.now() - relativedelta(days=idx+1)
-    ymd = ymd.strftime("%Y%m%d")
-    with open('count.txt', 'w+', encoding='cp949') as f:
-        f.write(ymd)
-        f.truncate()
-        f.close()
 
 def start(idx) :
     try :
@@ -290,8 +284,7 @@ def start(idx) :
         pool.close()
         pool.join()
     except Exception as e: # work on python 3.x
-        print(e)
-        pass    
+        logging.error(traceback.format_exc())
 
 if __name__ == "__main__":
 
@@ -314,3 +307,9 @@ if __name__ == "__main__":
     while True :
         start(num)
         num += 1
+        ymd = datetime.now() - relativedelta(days=num+1)
+        ymd = ymd.strftime("%Y%m%d")
+        with open('count.txt', 'w+', encoding='cp949') as f:
+            f.write(ymd)
+            f.truncate()
+            f.close()
